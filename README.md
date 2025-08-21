@@ -57,8 +57,13 @@ Este repositorio contiene el backend de la aplicación, que se encarga de gestio
     ALLOWED_HOSTS='localhost,127.0.0.1'
     DATABASE_URL='mysql://usuario:contraseña@localhost:3306/nombre_db'
     ```
+ 3. Entra al directorio de la aplicación:
+
+    ```bash
+    cd app
+    ```
     
-3. Aplica las migraciones para crear las tablas:
+4. Aplica las migraciones para crear las tablas:
 
    ```bash
    python manage.py migrate
@@ -66,15 +71,6 @@ Este repositorio contiene el backend de la aplicación, que se encarga de gestio
 
 ## Ejecución
 
-
-- Ejecución:
-    primero entra al directorio de la aplicación:
-
-    ```bash
-    cd app
-    ```
-
-    finalmente ejecuta el servidor:
-    ```bash
-    python manage.py runserver
-    ```
+```bash
+python manage.py runserver
+```

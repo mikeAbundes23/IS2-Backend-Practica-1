@@ -46,7 +46,7 @@ Este repositorio contiene el backend de la aplicación, que se encarga de gestio
 1. Crea una base de datos y usuario en MySQL:
 
    ```sql
-   CREATE DATABASE app CHARACTER;
+   CREATE DATABASE app;
    ```
 
 2. Copia el archivo `.env.example` a `.env` y edita los valores según tu configuración local:

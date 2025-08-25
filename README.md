@@ -49,7 +49,13 @@ Este repositorio contiene el backend de la aplicación, que se encarga de gestio
    CREATE DATABASE app;
    ```
 
-2. Copia el archivo `.env.example` a `.env` y edita los valores según tu configuración local:
+2. Importa el archivo `app_dump.sql` que se a la misma altura que el archivo `.env`.
+
+   ```bash
+   mysql -u usuario -p app < app_dump.sql
+   ```
+
+3. Copia el archivo `.env.example` a `.env` y edita los valores según tu configuración local:
 
     ```properties
     SECRET_KEY='tu_clave_secreta'

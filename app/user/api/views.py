@@ -38,10 +38,21 @@ class MyTokenObtainPairView(TokenObtainPairView):
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def create_user(request):
-    serializer = UserSerializer(data=request.data)
+    data = request.data
+    password = data.get('password')
+    
+    if not password:
+        return Response({'error': 'Password is required'}, status=status.HTTP_400_BAD_REQUEST)
+    
+    serializer = UserSerializer(data=data)
+    
     if serializer.is_valid():
-        user = serializer.save()
-        return Response(UserSerializer(user).data, status=status.HTTP_201_CREATED)
+        usuario = serializer.save()
+        usuario.set_password(password)
+        usuario.save()
+        
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+    
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 

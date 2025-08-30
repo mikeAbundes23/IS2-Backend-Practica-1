@@ -5,7 +5,7 @@ from rest_framework import status
 from django.shortcuts import get_object_or_404
 from rest_framework import generics, permissions
 from user.models import User, Task
-from .serializers import UserSerializer, TaskSerializer
+from .serializers import UserSerializer, TaskSerializer, PrivateUserSerializer
 
 # JWT: Importa las vistas necesarias para el manejo de tokens
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
@@ -60,7 +60,7 @@ def create_user(request):
 @permission_classes([IsAuthenticated])
 def me(request):
     user = get_object_or_404(User, pk=request.user.id)
-    serializer = UserSerializer(user)
+    serializer = PrivateUserSerializer(user)
     return Response(serializer.data, status=status.HTTP_200_OK)
 
 
@@ -80,6 +80,7 @@ def users(request):
 
 
 class TaskListCreateView(generics.ListCreateAPIView):
+    print("TaskListCreateView")
     queryset = Task.objects.all()
     serializer_class = TaskSerializer
     permission_classes = [permissions.IsAuthenticated]

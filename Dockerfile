@@ -3,7 +3,7 @@ FROM python:3.12-slim-bullseye AS build
 WORKDIR /app
 
 # Install build dependencies
-RUN apt-get update && apt-get install -y --no-install-recommends \
+RUN apt-get update && apt-get install -y postgresql-client --no-install-recommends \
     build-essential \
     libpq-dev \
     libpq5 \
@@ -27,6 +27,7 @@ FROM python:3.12-slim-bullseye AS runtime
 # Install supervisor
 RUN apt-get update && apt-get install -y --no-install-recommends \
     supervisor \
+    libpq5 \
     && rm -rf /var/lib/apt/lists/*
 
 # Create a non-root user

@@ -3,31 +3,27 @@ FROM python:3.12-slim-bullseye AS build
 WORKDIR /app
 
 # Install build dependencies
-RUN apt-get update && apt-get install -y postgresql-client --no-install-recommends \
+RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     libpq-dev \
-    libpq5 \
-    libpq-dev \
-    gcc \
     default-libmysqlclient-dev \
-    libmariadb3 \
-    libmariadb-dev \
     pkg-config \
     python3-dev \
-    netcat \
     && rm -rf /var/lib/apt/lists/*
 
 # Install Python dependencies
 COPY requirements.txt .
-RUN pip install --no-cache-dir --user -r requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt gunicorn
 
 # Stage 2: runtime stage
 FROM python:3.12-slim-bullseye AS runtime
 
-# Install supervisor
+# Install runtime dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
     supervisor \
     libpq5 \
+    libmariadb3 \
+    postgresql-client \
     && rm -rf /var/lib/apt/lists/*
 
 # Create a non-root user
@@ -36,33 +32,30 @@ RUN groupadd --gid 1000 appuser && \
 
 WORKDIR /app
 
-# Copy installed Python packages from the build stage
-COPY --from=build /root/.local /root/.local
+# SOLUCIÓN: Reinstalar gunicorn en lugar de copiar binarios
+RUN pip install --no-cache-dir gunicorn
 
-# PRIMERO: Copiar configuración de supervisor (CORREGIDO)
+# Copiar solo los paquetes de Python (no los binarios)
+COPY --from=build /usr/local/lib/python3.12/site-packages /usr/local/lib/python3.12/site-packages
+
+# Verificar instalación
+RUN which gunicorn && gunicorn --version
+
+# Copy configurations
 COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
-
-# LUEGO: Copiar código de la aplicación
 COPY . .
-
-RUN chmod +x /app/entrypoint.sh
-ENTRYPOINT ["/app/entrypoint.sh"]
-
-# Create gunicorn config
 COPY gunicorn.conf.py ./
 
-
+# Set ownership - IMPORTANTE: Después de copiar todo
 RUN chown -R appuser:appuser /app
+
+# Dar permisos de ejecución específicos
+RUN chmod +x /usr/local/bin/gunicorn
 
 # Create logs directory
 RUN mkdir -p /var/log/supervisor && \
     chown -R appuser:appuser /var/log/supervisor
 
-# Add user's local bin to PATH
-ENV PATH="/home/appuser/.local/bin:$PATH"
-
-# Expose port
 EXPOSE 8000
 
-# Use supervisor to manage processes (CON -n)
-CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf", "-n"]
+CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]

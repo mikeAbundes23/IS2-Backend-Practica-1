@@ -45,7 +45,7 @@ RUN which gunicorn && gunicorn --version
 COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 COPY . .
 COPY gunicorn.conf.py ./
-
+#COPY gunicorn.conf.py /app/
 # Set ownership - IMPORTANTE: Después de copiar todo
 RUN chown -R appuser:appuser /app
 

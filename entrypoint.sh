@@ -1,24 +1,16 @@
 #!/bin/bash
-set -e
 
-# Variables de DB
-DB_HOST=${DB_HOST:-db}
-DB_PORT=${DB_PORT:-5432}
-
-echo "$DB_HOST"
-echo "$DB_PORT"
-# Esperar a que PostgreSQL esté listo
-echo "Esperando a que PostgreSQL esté disponible..."
-until pg_isready -h "$DB_HOST" -p "$DB_PORT" >/dev/null 2>&1; do
+# Esperar a que PostgreSQL esté listo usando pg_isready
+echo "Waiting for PostgreSQL to be ready..."
+while ! pg_isready -h db -p 5432 -U postgres; do
   sleep 1
 done
-echo "PostgreSQL disponible!"
+echo "PostgreSQL is ready!"
 
 # Ejecutar migraciones
-echo "Ejecutando migraciones..."
-cd app
-python manage.py migrate
+echo "Running migrations..."
+cd /app/IS2-Backend-Practica-1/app
+python manage.py migrate --noinput
 
-# Iniciar servidor Django
-echo "Iniciando servidor Django..."
-python manage.py runserver 0.0.0.0:8000
+# Ejecutar el comando principal
+exec "$@"

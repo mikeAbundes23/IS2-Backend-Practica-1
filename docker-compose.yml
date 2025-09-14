@@ -17,6 +17,7 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+      start_period: 10s
 
   backend:
     image: ghcr.io/mikeabundes23/is2-backend-practica-1:latest

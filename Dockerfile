@@ -45,12 +45,14 @@ RUN which gunicorn && gunicorn --version
 COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 COPY . .
 COPY gunicorn.conf.py ./
-#COPY gunicorn.conf.py /app/
+COPY entrypoint.sh /entrypoint.sh
+
 # Set ownership - IMPORTANTE: Después de copiar todo
 RUN chown -R appuser:appuser /app
 
 # Dar permisos de ejecución específicos
 RUN chmod +x /usr/local/bin/gunicorn
+RUN chmod +x /entrypoint.sh
 
 # Create logs directory
 RUN mkdir -p /var/log/supervisor && \
@@ -58,4 +60,5 @@ RUN mkdir -p /var/log/supervisor && \
 
 EXPOSE 8000
 
+ENTRYPOINT ["/entrypoint.sh"]
 CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]

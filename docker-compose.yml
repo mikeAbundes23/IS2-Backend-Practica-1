@@ -20,7 +20,12 @@ services:
       start_period: 10s
 
   backend:
-    image: ghcr.io/mikeabundes23/is2-backend-practica-1:latest
+    #image: ghcr.io/mikeabundes23/is2-backend-practica-1:latest
+    #image: ./
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    platform: linux/amd64
     container_name: backend
     restart: always
     env_file:
@@ -38,8 +43,15 @@ services:
         condition: service_healthy
 
   frontend:
-    image: ghcr.io/mikeabundes23/is2-frontend-practica-1:latest
+    #image: ghcr.io/mikeabundes23/is2-frontend-practica-1:latest
+    #image: ../S2-Frontend-Practica-1-/app
+    build:
+      context: ./../IS2-Frontend-Practica-1-/app/
+      dockerfile: Dockerfile
+    platform: linux/amd64
     container_name: frontend
+    env_file:
+      - .env
     environment:
       VITE_API_BASE_URL: ${VITE_API_BASE_URL}
     ports:

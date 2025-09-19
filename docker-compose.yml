@@ -7,15 +7,17 @@ services:
       POSTGRES_DB: ${POSTGRES_DB}
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      DB_PORT: ${DB_PORT}
     volumes:
       - postgres_data:/var/lib/postgresql/data
     ports:
-      - "5432:5432"
+      - "${DB_PORT}:5432"
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -h localhost -p 5432 -U ${POSTGRES_USER}"]
       interval: 10s
       timeout: 5s
       retries: 5
+      start_period: 10s
 
   backend:
     image: ghcr.io/mikeabundes23/is2-backend-practica-1:latest
@@ -34,15 +36,12 @@ services:
     depends_on:
       db:
         condition: service_healthy
-    command: >
-      sh -c "sleep 5 && 
-             cd /app/app && 
-             python manage.py migrate --noinput && 
-             /usr/bin/supervisord -c /etc/supervisor/conf.d/supervisord.conf"
 
   frontend:
     image: ghcr.io/mikeabundes23/is2-frontend-practica-1:latest
     container_name: frontend
+    environment:
+      VITE_API_BASE_URL: ${VITE_API_BASE_URL}
     ports:
       - "${FRONTEND_PORT}:3000"
     depends_on:

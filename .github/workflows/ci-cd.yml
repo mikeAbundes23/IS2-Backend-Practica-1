@@ -25,7 +25,6 @@ jobs:
 
       - name: Run tests
         run: |
-          cd app
           ls 
           python manage.py test
 

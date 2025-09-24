@@ -25,7 +25,7 @@ jobs:
 
       - name: Run tests
         run: |
-          ls 
+          cd app
           python manage.py test
 
         env:

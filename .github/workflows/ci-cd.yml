@@ -1,4 +1,5 @@
 name: CI/CD Pipeline Django
+
 on:
   push:
     branches: ["main", "feature/ci-cd-setup"]
@@ -42,19 +43,19 @@ jobs:
         run: |
           cd app
           python manage.py test
-
         env:
           SECRET_KEY: ${{ secrets.SECRET_KEY }}
           DEBUG: ${{ secrets.DEBUG }}
-          DB_NAME: ${{ secrets.DB_NAME }}
-          DB_USER: ${{ secrets.DB_USER }}
-          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-          DB_HOST: ${{ secrets.DB_HOST }}
-          DB_PORT: ${{ secrets.DB_PORT }}
+          DB_NAME: test_db
+          DB_USER: test_user
+          DB_PASSWORD: test_pass
+          DB_HOST: localhost
+          DB_PORT: 5432
 
   build-and-push:
     needs: test
     runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
 
     steps:
       - name: Checkout repository
@@ -65,11 +66,11 @@ jobs:
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
-          password: ${{ secrets.GT }}
+          password: ${{ secrets.GT }} # ✅ Verificar que este secret existe
 
       - name: Build and push Docker image
         run: |
-          IMAGE_NAME=ghcr.io/mikeabundes23/is2-frontend-practica-1
+          IMAGE_NAME=ghcr.io/${{ github.repository_owner }}/is2-frontend-practica-1
           IMAGE_TAG=${{ github.sha }}
 
           echo "Building image $IMAGE_NAME:$IMAGE_TAG"

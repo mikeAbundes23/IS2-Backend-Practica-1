@@ -1,5 +1,4 @@
 name: CI/CD Pipeline Django
-
 on:
   push:
     branches: ["main", "feature/ci-cd-setup"]
@@ -9,21 +8,6 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
-
-    services:
-      postgres:
-        image: ghcr.io/postgres:15
-        env:
-          POSTGRES_DB: test_db
-          POSTGRES_USER: test_user
-          POSTGRES_PASSWORD: test_pass
-        ports:
-          - 5432:5432
-        options: >-
-          --health-cmd="pg_isready -U test_user -d test_db"
-          --health-interval=10s
-          --health-timeout=5s
-          --health-retries=5
 
     steps:
       - name: Checkout code
@@ -42,20 +26,21 @@ jobs:
       - name: Run tests
         run: |
           cd app
+          python manage.py migrate
           python manage.py test
+
         env:
           SECRET_KEY: ${{ secrets.SECRET_KEY }}
           DEBUG: ${{ secrets.DEBUG }}
-          DB_NAME: test_db
-          DB_USER: test_user
-          DB_PASSWORD: test_pass
-          DB_HOST: localhost
-          DB_PORT: 5432
+          DB_NAME: ${{ secrets.DB_NAME }}
+          DB_USER: ${{ secrets.DB_USER }}
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          DB_HOST: ${{ secrets.DB_HOST }}
+          DB_PORT: ${{ secrets.DB_PORT }}
 
   build-and-push:
     needs: test
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main'
 
     steps:
       - name: Checkout repository
@@ -70,7 +55,7 @@ jobs:
 
       - name: Build and push Docker image
         run: |
-          IMAGE_NAME=ghcr.io/${{ github.repository_owner }}/is2-frontend-practica-1
+          IMAGE_NAME=ghcr.io/mikeabundes23/is2-frontend-practica-1
           IMAGE_TAG=${{ github.sha }}
 
           echo "Building image $IMAGE_NAME:$IMAGE_TAG"
